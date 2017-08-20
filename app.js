@@ -42,7 +42,12 @@ const commands = [{
       .catch(console.error);
   }
 }, {
-  name: 'github'
+  name: 'github',
+  response: (command, msg) => {
+    msg.channel.send("You can find the source at: https://github.com/eldemonstro/dawnbot")
+      .then(message => console.log(`Sent message: ${message.content}`))
+      .catch(console.error);
+  }
 }];
 
 // Find if the command exists and return the obj that contais the command

@@ -18,51 +18,75 @@ module.exports = {
 ```
 */
 
-
+// Import config file
 const config = require('./config');
+
+// Import required dependencies
 const Discord = require("discord.js");
 const chalk = require('chalk');
+
+// Create a new Discord Client
 const client = new Discord.Client();
 
-const commands = ['echo', 'github'];
+// List of the commands that the bot can do
+// The list must contain the name that will be called
+// TODO: Convert the list of commands to an list of objects
+const commands = [{
+  name: 'echo',
+  response: (command, msg) => {
+    command.shift();
+    command.shift();
+    message = command.join(" ");
+    msg.channel.send(message)
+      .then(message => console.log(`Sent message: ${message.content}`))
+      .catch(console.error);
+  }
+}, {
+  name: 'github'
+}];
 
+// Find if the command exists and return the obj that contais the command
+let findCommand = (command, callback) => {
+  for (var i = 0; i < commands.length; i++) {
+    if (commands[i].name === command) {
+      callback(true, commands[i]);
+      return;
+    }
+  }
+  callback(false, {});
+}
+
+// Execute when the bot in logged in
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
+// When the bot see a message execute this
 client.on('message', msg => {
-  console.time("command");
-  let command = msg.content.split(/\s+/g) || [];
+  // If the message comes from the bot itself ignore
   if (client.user.id === msg.author.id) {
     return;
   }
-  console.log(command, chalk.blue(client.user.id));
+
+  // Divide the commands by whitespace
+  let command = msg.content.split(/\s+/g) || [];
+
+  // Log the command and the user who used it
+  console.log(chalk.blue(command));
   console.log(chalk.green(msg.author.id));
 
+  // Checks if the message is directly to the bot
   if (command[0] === "!db") {
-    if (commands.find((element, index, array) => {
-        return element == command[1];
-      })) {
-      switch (command[1]) {
-        case 'echo':
-          if (command[2])
-            msg.channel.send(command[2])
-            .then(message => console.log(`Sent message: ${message.content}`))
-            .catch(console.error);
-          return
-          break;
-        case 'github':
-          msg.channel.send('https://github.com/eldemonstro/dawnbot/')
-            .then(message => console.log(`Sent message: ${message.content}`))
-            .catch(console.error);
-          return
-          break;
-        default:
-          return;
+    // Find the required command, if exists execute, if report that the command
+    // not exist
+    findCommand(command[1], (found, object) => {
+      if (!found) {
+        msg.channel.send("Command not found :x");
+        return;
       }
-    }
+      object.response(command, msg);
+    });
   }
-  console.timeEnd("command");
 });
 
 client.login(config.token);

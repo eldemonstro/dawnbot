@@ -1,0 +1,27 @@
+{
+  "name": "dawnbot",
+  "version": "0.0.2",
+  "description": "A bot that do things!!",
+  "main": "app.js",
+  "dependencies": {
+    "discord.js": "^11.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bot",
+    "discord"
+  ],
+  "author": "Fabricio Bezerra",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eldemonstro/dawnbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eldemonstro/dawnbot/issues"
+  },
+  "homepage": "https://github.com/eldemonstro/dawnbot#readme"
+}

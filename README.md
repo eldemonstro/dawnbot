@@ -1,4 +1,5 @@
 # A cool discord bot
+If you want to contribute just go on and fork the repository or open a issue
 
 ## How to use
 > npm install

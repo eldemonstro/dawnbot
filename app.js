@@ -43,6 +43,13 @@ const commands = [{
       command.shift();
       command.shift();
       message = command.join(" ");
+      console.log(message);
+      if (message == "") {
+        msg.channel.send(`Not enough parameters`)
+          .then(message => console.log(`Sent message: ${message.content}`))
+          .catch(console.error);
+        return;
+      }
       msg.channel.send(message)
         .then(message => console.log(`Sent message: ${message.content}`))
         .catch(console.error);
@@ -60,14 +67,22 @@ const commands = [{
   },
   {
     name: 'eval',
-    description: 'Evaluate a javascript code',
+    description: `Evaluate a javascript code, must be put in one line \
+    code (between backticks (\`))`,
     response: (command, msg) => {
       console.log(minitest);
       command.shift();
       command.shift();
       evaluation = command.join(" ");
+      let message = /`(.*?)`/g.exec(evaluation);
+      if (message == null) {
+        msg.channel.send(`Not enough parameters`)
+          .then(message => console.log(`Sent message: ${message.content}`))
+          .catch(console.error);
+        return;
+      }
       let geval = eval;
-      msg.channel.send(geval(evaluation))
+      msg.channel.send(geval(message[1]))
         .then(message => console.log(`Sent message: ${message.content}`))
         .catch(console.error);
     }

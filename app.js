@@ -28,27 +28,67 @@ const chalk = require('chalk');
 // Create a new Discord Client
 const client = new Discord.Client();
 
+let minitest = 0;
+
 // List of the commands that the bot can do
-// The list must contain the name that will be called
-// TODO: Convert the list of commands to an list of objects
+// List must contain a object with the name of the command, a description
+// and a function that will execute the command, with the parameters:
+// command: the array of string received from message listener
+// msg: the msg object from discord.js library
 const commands = [{
-  name: 'echo',
-  response: (command, msg) => {
-    command.shift();
-    command.shift();
-    message = command.join(" ");
-    msg.channel.send(message)
-      .then(message => console.log(`Sent message: ${message.content}`))
-      .catch(console.error);
+    name: 'echo',
+    description: 'Resend the message that you gave (Note: the bot will not' +
+      ' echo recursively)',
+    response: (command, msg) => {
+      command.shift();
+      command.shift();
+      message = command.join(" ");
+      msg.channel.send(message)
+        .then(message => console.log(`Sent message: ${message.content}`))
+        .catch(console.error);
+    }
+  },
+  {
+    name: 'github',
+    description: 'Shows bot source code on github',
+    response: (command, msg) => {
+      msg.channel.send('You can find the source at: ' +
+          ' https://github.com/eldemonstro/dawnbot')
+        .then(message => console.log(`Sent message: ${message.content}`))
+        .catch(console.error);
+    }
+  },
+  {
+    name: 'eval',
+    description: 'Evaluate a javascript code',
+    response: (command, msg) => {
+      console.log(minitest);
+      command.shift();
+      command.shift();
+      evaluation = command.join(" ");
+      let geval = eval;
+      msg.channel.send(geval(evaluation))
+        .then(message => console.log(`Sent message: ${message.content}`))
+        .catch(console.error);
+    }
+  },
+  {
+    name: 'help',
+    description: 'Shows this list',
+    response: (command, msg) => {
+      let message = `\`\`\`\nThe commands are:
+-------------
+${commands.map(cmd => `Name: ${cmd.name}
+Description: ${cmd.description}
+-------------`).join(`\n`)}
+\`\`\``;
+      console.log(message);
+      msg.channel.send(message)
+        .then(message => console.log(`Sent message: ${message.content}`))
+        .catch(console.error);
+    }
   }
-}, {
-  name: 'github',
-  response: (command, msg) => {
-    msg.channel.send("You can find the source at: https://github.com/eldemonstro/dawnbot")
-      .then(message => console.log(`Sent message: ${message.content}`))
-      .catch(console.error);
-  }
-}];
+];
 
 // Find if the command exists and return the obj that contais the command
 let findCommand = (command, callback) => {

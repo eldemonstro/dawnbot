@@ -97,7 +97,24 @@ ${commands.map(cmd => `Name: ${cmd.name}
 Description: ${cmd.description}
 -------------`).join(`\n`)}
 \`\`\``;
-      console.log(message);
+      msg.channel.send(message)
+        .then(message => console.log(`Sent message: ${message.content}`))
+        .catch(console.error);
+    }
+  },
+  {
+    name: `roll`,
+    description: 'Rolls a dice',
+    response: (command, msg) => {
+      let message;
+      if (command.length == 2) {
+        message = Math.floor((Math.random() * 6) + 1);
+      } else {
+        message = Math.floor((Math.random() * parseInt(command[2])) + 1);
+      }
+      if (message == null) {
+        message = `Not enough parameters`;
+      }
       msg.channel.send(message)
         .then(message => console.log(`Sent message: ${message.content}`))
         .catch(console.error);
@@ -121,7 +138,7 @@ client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-// When the bot see a message execute this
+// When the bot see a message execute this (for normal commands)
 client.on('message', msg => {
   // If the message comes from the bot itself ignore
   if (client.user.id === msg.author.id) {
@@ -148,5 +165,7 @@ client.on('message', msg => {
     });
   }
 });
+
+
 
 client.login(config.token);

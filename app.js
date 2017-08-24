@@ -44,47 +44,44 @@ const commands = [{
       command.shift();
       message = command.join(" ");
       console.log(message);
-      if (message == "") {
-        msg.channel.send(`Not enough parameters`)
-          .then(message => console.log(`Sent message: ${message.content}`))
-          .catch(console.error);
-        return;
-      }
-      msg.channel.send(message)
-        .then(message => console.log(`Sent message: ${message.content}`))
-        .catch(console.error);
+      if (message == "")
+        message = 'Not enough parameters xd';
+      sendMessage(msg, message);
     }
   },
   {
     name: 'github',
     description: 'Shows bot source code on github',
     response: (command, msg) => {
-      msg.channel.send('You can find the source at: ' +
-          ' https://github.com/eldemonstro/dawnbot')
-        .then(message => console.log(`Sent message: ${message.content}`))
-        .catch(console.error);
+      let message = 'You can find the source at: ' +
+        ' https://github.com/eldemonstro/dawnbot';
+      sendMessage(msg, message);
     }
   },
   {
     name: 'eval',
-    description: `Evaluate a javascript code, must be put in one line \
-    code (between backticks (\`))`,
+    description: "Evaluate a javascript code, must be put in one line" +
+      "code (between backticks (\`))",
     response: (command, msg) => {
       console.log(minitest);
       command.shift();
       command.shift();
       evaluation = command.join(" ");
-      let message = /`(.*?)`/g.exec(evaluation);
-      if (message == null) {
-        msg.channel.send(`Not enough parameters`)
-          .then(message => console.log(`Sent message: ${message.content}`))
-          .catch(console.error);
-        return;
-      }
+      evaluation = /`(.*?)`/g.exec(evaluation);
+      let message;
+      if (message == null)
+        message = 'Not enough parameters xd';
       let geval = eval;
-      msg.channel.send(geval(message[1]))
-        .then(message => console.log(`Sent message: ${message.content}`))
-        .catch(console.error);
+      try {
+        message = geval(evaluation[1]);
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          message = e.message;
+        } else {
+          throw (e);
+        }
+      }
+      sendMessage(msg, message);
     }
   },
   {
@@ -97,9 +94,7 @@ ${commands.map(cmd => `Name: ${cmd.name}
 Description: ${cmd.description}
 -------------`).join(`\n`)}
 \`\`\``;
-      msg.channel.send(message)
-        .then(message => console.log(`Sent message: ${message.content}`))
-        .catch(console.error);
+      sendMessage(msg, message);
     }
   },
   {
@@ -115,12 +110,86 @@ Description: ${cmd.description}
       if (message == null) {
         message = `Not enough parameters`;
       }
-      msg.channel.send(message)
-        .then(message => console.log(`Sent message: ${message.content}`))
-        .catch(console.error);
+      sendMessage(msg, message);
+    }
+  },
+  {
+    name: `RPG`,
+    description: `Testando`,
+    response: (command, msg) => {
+      RPGHelp.running = true;
+      let message = `\`\`\`\nBOW DOWN TO THE:
+-------------
+${RPGHelp.bosses.map(boss => `Name: ${boss.name}
+Life: ${boss.life}
+Attacks:
+${boss.attacks.map(attack => `Name: ${attack.name} | Damage: ${attack.damage}`).join(`\n`)}
+~~~~~~~~~~~~~`).join(`\n`)}
+Your party:
+-------------
+${RPGHelp.players.map(player => `Name: ${player.name}
+Life: ${player.life}
+Attacks:
+${player.attacks.map(attack => `Name: ${attack.name} | Damage: ${attack.damage}`).join(`\n`)}
+~~~~~~~~~~~~~`).join(`\n`)}
+Do your move:
+\`\`\``;
+      sendMessage(msg, message);
     }
   }
 ];
+
+// Sends a response to a channel
+// msg: Message object from discord.js
+// message: message to be sent
+let sendMessage = (msg, message) => {
+  msg.channel.send(message)
+    .then(message => console.log(`Sent message: ${message.content}`))
+    .catch(console.error);
+}
+
+let rpg = (msg) => {
+  let command = msg.content.split(/\s+/g) || [];
+  console.log(command);
+  let message;
+  findAName(RPGHelp.players, command[0], (found, player) => {
+    console.log(player);
+    if (!found) {
+      sendMessage(msg, "Not found");
+    }
+  });
+}
+
+let RPGHelp = {
+  bosses: [{
+    name: 'The dark inquisitor',
+    life: 20,
+    attacks: [{
+      name: 'melee',
+      damage: 20
+    }]
+  }],
+  players: [{
+    name: 'Mage',
+    life: 20,
+    attacks: [{
+      name: 'melee',
+      damage: 5
+    }]
+  }],
+  running: false
+};
+
+// Find a thing in a array of objects
+let findAName = (arr, search, callback) => {
+  for (var i = 0; i < arr.length; i++) {
+    if (search == arr[i].name) {
+      callback(true, arr[i]);
+      return;
+    }
+  }
+  callback(false, null);
+}
 
 // Find if the command exists and return the obj that contais the command
 let findCommand = (command, callback) => {
@@ -143,6 +212,10 @@ client.on('message', msg => {
   // If the message comes from the bot itself ignore
   if (client.user.id === msg.author.id) {
     return;
+  }
+
+  if (RPGHelp.running == true) {
+    rpg(msg);
   }
 
   // Divide the commands by whitespace
